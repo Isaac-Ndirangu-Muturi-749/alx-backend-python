@@ -15,7 +15,7 @@ def zoom_array(lst: Tuple, factor: int = 2) -> List:
         factor: An integer specifying the zoom factor (default is 2).
 
     Returns:
-        A tuple containing each element from the input tuple
+        A List containing each element from the input tuple
           repeated 'factor' times.
     """
     zoomed_in: List[int] = [
@@ -24,9 +24,13 @@ def zoom_array(lst: Tuple, factor: int = 2) -> List:
     ]
     return zoomed_in
 
+if __name__ == "__main__":
+    array = (12, 72, 91)
 
-array = (12, 72, 91)
+    zoom_2x = zoom_array(array)
 
-zoom_2x = zoom_array(array)
+    zoom_3x = zoom_array(array, 3)
 
-zoom_3x = zoom_array(array, 3)
+    print(f"Array: {array}")
+    print(zoom_2x)
+    print(zoom_3x)

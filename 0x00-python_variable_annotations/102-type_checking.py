@@ -24,6 +24,7 @@ def zoom_array(lst: Tuple, factor: int = 2) -> List:
     ]
     return zoomed_in
 
+
 if __name__ == "__main__":
     array = (12, 72, 91)
 

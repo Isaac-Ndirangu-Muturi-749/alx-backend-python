@@ -3,6 +3,7 @@
 Module 2-floor
 """
 
+
 def floor(n: float) -> int:
     """
     Calculate the floor of a float.

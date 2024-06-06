@@ -2,11 +2,10 @@
 """
 Module 101-safely_get_value
 """
-
-
 from typing import Mapping, Any, Union, TypeVar
 
 T = TypeVar('T')
+
 
 def safely_get_value(dct: Mapping, key: Any, default: T = None) -> Union[Any, T]:
     """
@@ -15,10 +14,11 @@ def safely_get_value(dct: Mapping, key: Any, default: T = None) -> Union[Any, T]
     Args:
         dct: The dictionary to search.
         key: The key to search for.
-        default: The default value to return if the key is not found (defaults to None).
+        default: The default value to return if the key is
+         not found (defaults to None).
 
     Returns:
-        The value associated with the key if found, otherwise the default value.
+        The value associated with the key if found, otherwise default value.
     """
     if key in dct:
         return dct[key]

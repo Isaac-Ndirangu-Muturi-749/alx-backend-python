@@ -20,8 +20,8 @@ async def measure_time(n: int, max_delay: int) -> float:
     Returns:
         float: The average execution time per call.
     """
-    start_time = perf_counter()
+    start_time = time.perf_counter()
     asyncio.run(wait_n(n, max_delay))
-    end_time = perf_counter()
+    end_time = time.perf_counter()
     total_time = end_time - start_time
     return total_time / n

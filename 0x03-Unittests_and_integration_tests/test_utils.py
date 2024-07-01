@@ -91,27 +91,28 @@ class TestGetJson(unittest.TestCase):
 class TestMemoize(unittest.TestCase):
     """Test case for the memoize decorator."""
 
-    class TestClass:
-        """Class to test the memoize decorator."""
-
-        def a_method(self):
-            """Returns a fixed value."""
-            return 42
-
-        @memoize
-        def a_property(self):
-            """Returns the result of a_method, but memoized."""
-            return self.a_method()
-
-    def test_memoize(self):
+    def test_memoize(self) -> None:
         """Test the memoize decorator."""
-        with patch.object(TestClass,
-                          'a_method',
+
+        class TestClass:
+            """Class to test the memoize decorator."""
+
+            def a_method(self) -> int:
+                """Returns a fixed value."""
+                return 42
+
+            @memoize
+            def a_property(self) -> int:
+                """Returns the result of a_method, but memoized."""
+                return self.a_method()
+
+        with patch.object(TestClass, 'a_method',
                           return_value=42) as mock_method:
             test_instance = TestClass()
             result1 = test_instance.a_property
             result2 = test_instance.a_property
-
+            self.assertEqual(result1, 42)
+            self.assertEqual(result2, 42)
             mock_method.assert_called_once()
 
 

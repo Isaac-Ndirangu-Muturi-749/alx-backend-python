@@ -16,7 +16,10 @@ class TestAccessNestedMap(unittest.TestCase):
         ({"a": {"b": 2}}, ("a",), {"b": 2}),
         ({"a": {"b": 2}}, ("a", "b"), 2)
     ])
-    def test_access_nested_map(self, nested_map: Mapping[str, Any], path: Sequence[str], expected: Any) -> None:
+    def test_access_nested_map(self,
+                               nested_map: Mapping[str, Any],
+                               path: Sequence[str],
+                               expected: Any) -> None:
         """
         Test that access_nested_map returns the correct value.
 
@@ -30,12 +33,13 @@ class TestAccessNestedMap(unittest.TestCase):
         """
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
-
     @parameterized.expand([
         ({}, ("a",)),
         ({"a": 1}, ("a", "b"))
     ])
-    def test_access_nested_map_exception(self, nested_map: Mapping[str, Any], path: Sequence[str]) -> None:
+    def test_access_nested_map_exception(self,
+                                         nested_map: Mapping[str, Any],
+                                         path: Sequence[str]) -> None:
         """
         Test that access_nested_map raises a KeyError for invalid paths.
 

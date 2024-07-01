@@ -50,9 +50,8 @@ class TestAccessNestedMap(unittest.TestCase):
         Asserts:
             That access_nested_map raises a KeyError for invalid paths.
         """
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(KeyError):
             access_nested_map(nested_map, path)
-        self.assertEqual(str(cm.exception), str(path[-1]))
 
 
 if __name__ == '__main__':

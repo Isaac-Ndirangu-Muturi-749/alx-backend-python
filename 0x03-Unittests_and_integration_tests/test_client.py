@@ -3,8 +3,9 @@
 """
 
 import unittest
-from unittest.mock import patch
-from parameterized import parameterized
+from unittest.mock import patch, Mock
+from parameterized import parameterized, parameterized_class
+from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 from client import GithubOrgClient
 
 
@@ -86,5 +87,37 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get_json.assert_called_once()
 
 
-if __name__ == "__main__":
+@parameterized_class(
+    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'), [
+        (org_payload, repos_payload, expected_repos, apache2_repos)])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.get_patcher = patch('requests.get')
+        cls.mock_get = cls.get_patcher.start()
+        cls.mock_get.side_effect = cls.mock_get_side_effect
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.get_patcher.stop()
+
+    @classmethod
+    def mock_get_side_effect(cls, url):
+        if url == 'https://api.github.com/orgs/example-org':
+            return Mock(json=lambda: cls.org_payload)
+        elif url == 'https://api.github.com/orgs/example-org/repos':
+            return Mock(json=lambda: cls.repos_payload)
+        else:
+            raise ValueError(f"Unexpected URL: {url}")
+
+    def test_public_repos(self):
+        client = GithubOrgClient('example-org')
+        repos = client.public_repos()
+
+        # or self.apache2_repos, depending on the fixture
+        self.assertEqual(repos, self.expected_repos)
+
+
+if __name__ == '__main__':
     unittest.main()

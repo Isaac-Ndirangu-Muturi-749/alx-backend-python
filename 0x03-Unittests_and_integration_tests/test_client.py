@@ -5,7 +5,6 @@
 import unittest
 from unittest.mock import patch
 from parameterized import parameterized
-# Adjust import based on your actual implementation
 from client import GithubOrgClient
 
 
@@ -27,6 +26,15 @@ class TestGithubOrgClient(unittest.TestCase):
 
         # Assert org property returns the correct org name
         self.assertEqual(client.org, org_name)
+
+    @parameterized.expand([
+        ("google", "https://api.github.com/orgs/google/repos"),
+        ("abc", "https://api.github.com/orgs/abc/repos"),
+    ])
+    @patch.object(GithubOrgClient, 'org', side_effect=lambda x: {"login": x})
+    def test_public_repos_url(self, org_name, expected_url, mock_org):
+        client = GithubOrgClient(org_name)
+        self.assertEqual(client._public_repos_url, expected_url)
 
 
 if __name__ == '__main__':

@@ -5,12 +5,8 @@
 import unittest
 from typing import Mapping, Any, Sequence
 from parameterized import parameterized
-from utils import access_nested_map
-
 from unittest.mock import patch, Mock
-from utils import get_json
-
-from utils import memoize
+from utils import access_nested_map, get_json, memoize
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -113,5 +109,5 @@ class TestMemoize(unittest.TestCase):
             mock_method.asset_called_once()
 
 
-# if __name__ == '__main__':
-#     unittest.main()
+if __name__ == '__main__':
+    unittest.main()

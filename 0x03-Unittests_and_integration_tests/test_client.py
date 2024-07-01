@@ -3,32 +3,30 @@
 """
 
 import unittest
-from typing import Mapping, Any, Sequence
+from unittest.mock import patch
 from parameterized import parameterized
-from utils import access_nested_map
+# Adjust import based on your actual implementation
+from client import GithubOrgClient
 
 
-class TestAccessNestedMap(unittest.TestCase):
-    """Test case for the access_nested_map function."""
+class TestGithubOrgClient(unittest.TestCase):
 
     @parameterized.expand([
-        ({"a": 1}, ("a",), 1),
-        ({"a": {"b": 2}}, ("a",), {"b": 2}),
-        ({"a": {"b": 2}}, ("a", "b"), 2)
+        ("google",),
+        ("abc",),
     ])
-    def test_access_nested_map(self, nested_map: Mapping[str, Any], path: Sequence[str], expected: Any) -> None:
-        """
-        Test that access_nested_map returns the correct value.
+    @patch.object(GithubOrgClient, 'get_json', return_value={})
+    def test_org(self, org_name, mock_get_json):
+        client = GithubOrgClient(org_name)
 
-        Args:
-            nested_map (Mapping): The nested dictionary to access.
-            path (Sequence): The sequence of keys to follow.
-            expected (Any): The expected value.
+        # Assert get_json is called once with the correct argument
+        client.org
 
-        Asserts:
-            That the value returned by access_nested_map is equal to expected.
-        """
-        self.assertEqual(access_nested_map(nested_map, path), expected)
+        mock_get_json.assert_called_once_with(
+            f'https://api.github.com/orgs/{org_name}')
+
+        # Assert org property returns the correct org name
+        self.assertEqual(client.org, org_name)
 
 
 if __name__ == '__main__':

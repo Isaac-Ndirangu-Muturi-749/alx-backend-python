@@ -105,10 +105,10 @@ class TestMemoize(unittest.TestCase):
 
     def test_memoize(self):
         """Test the memoize decorator."""
-        with patch.object(self.TestClass,
+        with patch.object(TestClass,
                           'a_method',
                           return_value=42) as mock_method:
-            test_instance = self.TestClass()
+            test_instance = TestClass()
             result1 = test_instance.a_property
             result2 = test_instance.a_property
 

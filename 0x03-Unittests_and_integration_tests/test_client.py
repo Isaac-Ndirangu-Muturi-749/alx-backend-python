@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Module test_client
-
-This module contains the unit tests for the `access_nested_map` function
-from the utils module.
 """
 
 import unittest
+from typing import Mapping, Any, Sequence
 from parameterized import parameterized
 from utils import access_nested_map
 
@@ -18,14 +16,14 @@ class TestAccessNestedMap(unittest.TestCase):
         ({"a": {"b": 2}}, ("a",), {"b": 2}),
         ({"a": {"b": 2}}, ("a", "b"), 2)
     ])
-    def test_access_nested_map(self, nested_map, path, expected):
+    def test_access_nested_map(self, nested_map: Mapping[str, Any], path: Sequence[str], expected: Any) -> None:
         """
         Test that access_nested_map returns the correct value.
 
         Args:
-            nested_map (dict): The nested dictionary to access.
-            path (tuple): The sequence of keys to follow.
-            expected (any): The expected value.
+            nested_map (Mapping): The nested dictionary to access.
+            path (Sequence): The sequence of keys to follow.
+            expected (Any): The expected value.
 
         Asserts:
             That the value returned by access_nested_map is equal to expected.

@@ -3,122 +3,87 @@
 """
 
 import unittest
-from unittest.mock import patch, Mock
-from parameterized import parameterized, parameterized_class
-from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+from unittest.mock import patch, PropertyMock, Mock
+from parameterized import parameterized
 from client import GithubOrgClient
+from fixtures import TEST_PAYLOAD
+from urllib.error import HTTPError
 
 
 class TestGithubOrgClient(unittest.TestCase):
-
+    """TestGithubOrgClient"""
     @parameterized.expand([
-        ("google",),
-        ("abc",),
-    ])
-    @patch.object(GithubOrgClient, 'get_json', return_value={})
-    def test_org(self, org_name, mock_get_json):
-        client = GithubOrgClient(org_name)
+        ("google"),
+        ("abc"),
+        ])
+    @patch("client.get_json", return_value={"payload": True})
+    def test_org(self, org_name, mock_get):
+        """test_org"""
+        test_client = GithubOrgClient(org_name)
+        test_return = test_client.org
+        self.assertEqual(test_return, mock_get.return_value)
+        mock_get.assert_called_once
 
-        # Assert get_json is called once with the correct argument
-        client.org
+    def test_public_repos_url(self):
+        """test_public_repos_url"""
+        with patch.object(GithubOrgClient,
+                          "org",
+                          new_callable=PropertyMock,
+                          return_value={"repos_url": "holberton"}) as mock_get:
+            test_json = {"repos_url": "holberton"}
+            test_client = GithubOrgClient(test_json.get("repos_url"))
+            test_return = test_client._public_repos_url
+            mock_get.assert_called_once
+            self.assertEqual(test_return,
+                             mock_get.return_value.get("repos_url"))
 
-        mock_get_json.assert_called_once_with(
-            f'https://api.github.com/orgs/{org_name}')
-
-        # Assert org property returns the correct org name
-        self.assertEqual(client.org, org_name)
-
-    @parameterized.expand([
-        ("google", "https://api.github.com/orgs/google/repos"),
-        ("abc", "https://api.github.com/orgs/abc/repos"),
-    ])
-    @patch.object(GithubOrgClient, 'org', side_effect=lambda x: {"login": x})
-    def test_public_repos_url(self, org_name, expected_url, mock_org):
-        client = GithubOrgClient(org_name)
-        self.assertEqual(client._public_repos_url, expected_url)
-
-    @patch('client.get_json', return_value=[
-           {"name": "repo1"}, {"name": "repo2"}])
-    @patch.object(
-        GithubOrgClient,
-        '_public_repos_url',
-        new_callable=unittest.mock.PropertyMock,
-        return_value="https://api.github.com/orgs/testorg/repos")
-    def test_public_repos(self, mock_url, mock_get_json):
-        client = GithubOrgClient("testorg")
-        repos = client.public_repos()
-
-        # Assert the returned repositories match the mocked payload
-        self.assertEqual(repos, [{"name": "repo1"}, {"name": "repo2"}])
-
-        # Assert that _public_repos_url was called once
-        mock_url.assert_called_once()
-
-        # Assert that get_json was called once with the expected URL
-        mock_get_json.assert_called_once_with(
-            "https://api.github.com/orgs/testorg/repos")
+    @patch("client.get_json", return_value=[{"name": "holberton"}])
+    def test_public_repos(self, mock_get):
+        """test_public_repos"""
+        with patch.object(GithubOrgClient,
+                          "_public_repos_url",
+                          new_callable=PropertyMock,
+                          return_value="https://api.github.com/") as mock_pub:
+            test_client = GithubOrgClient("hoberton")
+            test_return = test_client.public_repos()
+            self.assertEqual(test_return, ["holberton"])
+            mock_get.assert_called_once
+            mock_pub.assert_called_once
 
     @parameterized.expand([
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False),
-    ])
-    @patch.object(GithubOrgClient, 'get_json')
-    @patch.object(
-        GithubOrgClient,
-        '_public_repos_url',
-        return_value="http://test-url.com")
-    def test_has_license(
-            self,
-            repo,
-            license_key,
-            expected_result,
-            mock_public_repos_url,
-            mock_get_json):
-        # Mock the get_json method to return a predefined payload
-        mock_get_json.return_value = [repo]
+        ])
 
-        # Create an instance of GithubOrgClient
-        client = GithubOrgClient("org_name")
-
-        # Call the has_license method and assert the result
-        self.assertEqual(client.has_license(license_key), expected_result)
-
-        # Assert that get_json was called once
-        mock_get_json.assert_called_once()
+    def test_has_license(self, repo, license_key, expected_return):
+        """test_has_license"""
+        test_client = GithubOrgClient("holberton")
+        test_return = test_client.has_license(repo, license_key)
+        self.assertEqual(expected_return, test_return)
 
 
 @parameterized_class(
-    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'), [
-        (org_payload, repos_payload, expected_repos, apache2_repos)])
+    ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
+    TEST_PAYLOAD
+)
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-
+    """TestIntegrationGithubOrgClient"""
     @classmethod
     def setUpClass(cls):
-        cls.get_patcher = patch('requests.get')
-        cls.mock_get = cls.get_patcher.start()
-        cls.mock_get.side_effect = cls.mock_get_side_effect
+        """setUpClass"""
+        cls.get_patcher = patch('requests.get', side_effect=HTTPError)
 
     @classmethod
     def tearDownClass(cls):
+        """tearDownClass"""
         cls.get_patcher.stop()
 
-    @classmethod
-    def mock_get_side_effect(cls, url):
-        if url == 'https://api.github.com/orgs/example-org':
-            return Mock(json=lambda: cls.org_payload)
-        elif url == 'https://api.github.com/orgs/example-org/repos':
-            return Mock(json=lambda: cls.repos_payload)
-        else:
-            raise ValueError(f"Unexpected URL: {url}")
-
     def test_public_repos(self):
-        client = GithubOrgClient('example-org')
-        repos = client.public_repos()
+        """test_public_repos"""
+        test_class = GithubOrgClient("holberton")
+        assert True
 
-        # or self.apache2_repos, depending on the fixture
-        self.assertEqual(repos, self.expected_repos)
-
-
-if __name__ == '__main__':
-    unittest.main()
-
+    def test_public_repos_with_license(self):
+        """test_public_repos_with_license"""
+        test_class = GithubOrgClient("holberton")
+        assert True

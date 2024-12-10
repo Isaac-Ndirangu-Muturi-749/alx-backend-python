@@ -7,8 +7,8 @@ def connect_db():
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user="root",  # Update with your MySQL username
-            password="password"  # Update with your MySQL password
+            user="root",
+            password="rootroot"
         )
         print("Connected to MySQL server.")
         return connection
@@ -31,8 +31,8 @@ def connect_to_prodev():
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user="root",  # Update with your MySQL username
-            password="password",  # Update with your MySQL password
+            user="root",
+            password="rootroot",
             database="ALX_prodev"
         )
         print("Connected to ALX_prodev database.")

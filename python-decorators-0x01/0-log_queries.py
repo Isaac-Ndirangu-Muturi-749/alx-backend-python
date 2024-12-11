@@ -3,13 +3,9 @@ import functools
 import logging
 from datetime import datetime
 
-# Set up logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 def log_queries(func):
-    """
-    Decorator to log SQL queries before executing them.
-    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         query = kwargs.get('query') or (args[0] if args else None)

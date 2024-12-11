@@ -3,7 +3,6 @@ import sqlite3
 import functools
 
 def with_db_connection(func):
-    """Decorator to handle opening and closing of database connections."""
     @functools.wraps(func)
     def wrapper_with_connection(*args, **kwargs):
         conn = sqlite3.connect('users.db')
@@ -14,7 +13,6 @@ def with_db_connection(func):
     return wrapper_with_connection
 
 def retry_on_failure(retries=3, delay=2):
-    """Decorator to retry a function on failure with a delay."""
     def decorator(func):
         @functools.wraps(func)
         def wrapper_with_retry(*args, **kwargs):
@@ -33,7 +31,6 @@ def retry_on_failure(retries=3, delay=2):
 @with_db_connection
 @retry_on_failure(retries=3, delay=1)
 def fetch_users_with_retry(conn):
-    """Function to fetch all users with automatic retry on failure."""
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users")
     return cursor.fetchall()
@@ -44,4 +41,3 @@ try:
     print(users)
 except Exception as e:
     print(f"Failed to fetch users after retries: {e}")
-

@@ -2,16 +2,12 @@ import sqlite3
 import functools
 
 def with_db_connection(func):
-    """Decorator to handle database connection."""
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        # Open database connection
         conn = sqlite3.connect('users.db')
         try:
-            # Pass the connection to the decorated function
             result = func(conn, *args, **kwargs)
         finally:
-            # Ensure the connection is closed after the function execution
             conn.close()
         return result
 

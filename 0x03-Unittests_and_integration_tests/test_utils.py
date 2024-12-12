@@ -2,6 +2,7 @@
 """Module test_utils
 """
 
+
 import unittest
 from typing import Mapping, Any, Sequence
 from parameterized import parameterized
@@ -10,12 +11,12 @@ from utils import access_nested_map, get_json, memoize
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    """Test case for the access_nested_map function."""
+    """Unit tests for the access_nested_map function"""
 
     @parameterized.expand([
-        ({"a": 1}, ("a",), 1),
-        ({"a": {"b": 2}}, ("a",), {"b": 2}),
-        ({"a": {"b": 2}}, ("a", "b"), 2)
+        ("single_key", {"a": 1}, ("a",), 1),
+        ("nested_map", {"a": {"b": 2}}, ("a",), {"b": 2}),
+        ("deep_nested", {"a": {"b": 2}}, ("a", "b"), 2),
     ])
     def test_access_nested_map(self,
                                nested_map: Mapping[str, Any],

@@ -1,8 +1,4 @@
-from django.shortcuts import render
-
-# Create your views here.
-
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Conversation, Message
@@ -10,17 +6,14 @@ from .serializers import ConversationSerializer, MessageSerializer
 from django.shortcuts import get_object_or_404
 
 
-# ViewSet for Conversations
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['participants__email', 'participants__first_name', 'participants__last_name']
 
     @action(detail=False, methods=['post'], url_path='create', url_name='create_conversation')
     def create_conversation(self, request):
-        """
-        Endpoint to create a new conversation.
-        Expects a list of participant user IDs in the request data.
-        """
         participants = request.data.get('participants', [])
         if not participants:
             return Response(
@@ -36,19 +29,16 @@ class ConversationViewSet(viewsets.ModelViewSet):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ViewSet for Messages
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['message_body', 'sender__email']
 
     def create(self, request, *args, **kwargs):
-        """
-        Endpoint to send a message to an existing conversation.
-        Expects conversation_id and message_body in the request data.
-        """
         conversation_id = request.data.get('conversation_id')
         message_body = request.data.get('message_body')
-        sender = request.user  # Assumes authentication and request.user is the sender
+        sender = request.user
 
         if not conversation_id or not message_body:
             return Response(

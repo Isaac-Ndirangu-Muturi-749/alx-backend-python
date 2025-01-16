@@ -12,3 +12,4 @@ Forbidden: /api/chats/
 Not Found: /api/img/grid.png
 2025-01-16 17:23:55.811619 - User: Anonymous - Path: /api-auth/
 Not Found: /api-auth/
+/home/inm749/alx-backend-python/Django-Middleware-0x03/chats/middleware.py changed, reloading.

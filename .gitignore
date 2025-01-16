@@ -1,3 +1,7 @@
 */__pycache__
 */.mypy_cache/3.6
 /venv
+/*/*/__pycache__
+/home/inm749/alx-backend-python/messaging_app/messaging_app/__pycache__/settings.cpython-312.pyc
+/messaging_app/chats/migrations/__pycache__
+/messaging_app/messaging_app/__pycache__

@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from django.http import JsonResponse
 
 class RequestLoggingMiddleware:
@@ -57,3 +57,60 @@ class RestrictAccessByTimeMiddleware:
         # Proceed with the request if time is allowed
         response = self.get_response(request)
         return response
+
+
+class OffensiveLanguageMiddleware:
+    """
+    Middleware to track and limit chat messages based on IP address.
+    """
+    def __init__(self, get_response):
+        """
+        Initialize the middleware and set up storage for IP tracking.
+        """
+        self.get_response = get_response
+        self.message_limits = {}  # Store message counts and timestamps per IP
+        self.TIME_WINDOW = timedelta(minutes=1)  # 1-minute time window
+        self.MAX_MESSAGES = 5  # Max 5 messages per time window
+
+    def __call__(self, request):
+        """
+        Handle incoming requests and enforce message limits.
+        """
+        # Only apply limits to POST requests (e.g., sending messages)
+        if request.method == 'POST':
+            ip_address = self.get_client_ip(request)
+
+            # Initialize or update the user's message data
+            now = datetime.now()
+            if ip_address not in self.message_limits:
+                self.message_limits[ip_address] = {"count": 1, "start_time": now}
+            else:
+                user_data = self.message_limits[ip_address]
+                elapsed_time = now - user_data["start_time"]
+
+                if elapsed_time < self.TIME_WINDOW:
+                    # Within the time window
+                    if user_data["count"] >= self.MAX_MESSAGES:
+                        return JsonResponse(
+                            {"error": "Message limit exceeded. Try again later."},
+                            status=429  # Too Many Requests
+                        )
+                    user_data["count"] += 1
+                else:
+                    # Time window has expired, reset the counter
+                    self.message_limits[ip_address] = {"count": 1, "start_time": now}
+
+        response = self.get_response(request)
+        return response
+
+    @staticmethod
+    def get_client_ip(request):
+        """
+        Retrieve the client's IP address from the request.
+        """
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip

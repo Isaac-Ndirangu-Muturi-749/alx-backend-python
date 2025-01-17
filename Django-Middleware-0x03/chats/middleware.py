@@ -114,3 +114,36 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+
+class RolePermissionMiddleware:
+    """
+    Middleware to enforce role-based permissions for users.
+    """
+    def __init__(self, get_response):
+        """
+        Initialize the middleware.
+        """
+        self.get_response = get_response
+
+    def __call__(self, request):
+        """
+        Check the user's role and enforce permissions.
+        """
+        # List of roles allowed to perform restricted actions
+        allowed_roles = ['admin', 'moderator']
+
+        # Assuming user role is passed in the request header for simplicity
+        # In a real app, you'd use request.user and their associated roles
+        user_role = request.headers.get('X-User-Role')
+
+        # Define restricted actions (e.g., POST or DELETE requests)
+        restricted_methods = ['POST', 'DELETE']
+
+        if request.method in restricted_methods and user_role not in allowed_roles:
+            return JsonResponse(
+                {"error": "Access denied. Admin or moderator role required."},
+                status=403  # Forbidden
+            )
+
+        response = self.get_response(request)
+        return response

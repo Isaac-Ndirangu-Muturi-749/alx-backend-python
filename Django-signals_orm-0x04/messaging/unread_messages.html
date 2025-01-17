@@ -6,5 +6,7 @@
             <strong>Message:</strong> {{ message.content }}<br>
             <strong>Received At:</strong> {{ message.timestamp }}
         </li>
+    {% empty %}
+        <li>No unread messages!</li>
     {% endfor %}
 </ul>

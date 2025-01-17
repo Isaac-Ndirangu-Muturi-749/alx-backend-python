@@ -47,8 +47,11 @@ def message_replies(request, message_id):
         'replies': all_replies,
     })
 
-def unread_messages(request):
-    # Fetch unread messages for the current user using the custom manager
-    unread_messages = Message.unread_messages.get_unread_messages(user=request.user)
+def unread_messages_view(request):
+    """
+    View to display unread messages for the logged-in user.
+    """
+    # Use the custom manager to retrieve unread messages
+    unread_messages = Message.unread.unread_for_user(user=request.user)
 
     return render(request, 'messaging/unread_messages.html', {'unread_messages': unread_messages})

@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Message
+from django.views.decorators.cache import cache_page
 
 @login_required
 def delete_user(request):
@@ -55,3 +56,12 @@ def unread_messages_view(request):
     unread_messages = Message.unread.unread_for_user(user=request.user).only('id', 'sender', 'content', 'timestamp')
 
     return render(request, 'messaging/unread_messages.html', {'unread_messages': unread_messages})
+
+# Cache the view for 60 seconds
+@cache_page(60)
+def conversation_view(request, conversation_id):
+    """
+    View to display messages in a conversation.
+    """
+    messages = Message.objects.filter(conversation_id=conversation_id).select_related('sender', 'receiver')
+    return render(request, 'chats/conversation.html', {'messages': messages})

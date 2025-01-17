@@ -1,12 +1,11 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 
 @login_required
 def delete_user(request):
+    """Allow a logged-in user to delete their account."""
     if request.method == "POST":
         user = request.user
-        user.delete()  # This triggers the post_delete signal
-        return redirect('home')  # Redirect to a home or logout page after deletion
-    return render(request, 'Django-Chat/delete_user.html')
-  
+        user.delete()  # Deletes the user and triggers the post_delete signal
+        return redirect('home')  # Redirect after deletion (adjust 'home' as needed)
+    return render(request, 'messaging/delete_user.html')

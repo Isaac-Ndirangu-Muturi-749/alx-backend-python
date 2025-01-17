@@ -115,7 +115,8 @@ class OffensiveLanguageMiddleware:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
-class RolePermissionMiddleware:
+
+class RolepermissionMiddleware:
     """
     Middleware to enforce role-based permissions for users.
     """

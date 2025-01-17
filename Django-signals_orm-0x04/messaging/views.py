@@ -51,7 +51,7 @@ def unread_messages_view(request):
     """
     View to display unread messages for the logged-in user.
     """
-    # Use the custom manager to retrieve unread messages
-    unread_messages = Message.unread.unread_for_user(user=request.user)
+    # Use the custom manager to retrieve unread messages and optimize with .only()
+    unread_messages = Message.unread.unread_for_user(user=request.user).only('id', 'sender', 'content', 'timestamp')
 
     return render(request, 'messaging/unread_messages.html', {'unread_messages': unread_messages})

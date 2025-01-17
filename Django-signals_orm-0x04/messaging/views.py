@@ -46,3 +46,9 @@ def message_replies(request, message_id):
         'parent_message': parent_message,
         'replies': all_replies,
     })
+
+def unread_messages(request):
+    # Fetch unread messages for the current user using the custom manager
+    unread_messages = Message.unread_messages.get_unread_messages(user=request.user)
+
+    return render(request, 'messaging/unread_messages.html', {'unread_messages': unread_messages})

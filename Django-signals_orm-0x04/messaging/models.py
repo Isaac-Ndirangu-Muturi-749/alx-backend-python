@@ -9,6 +9,7 @@ class Message(models.Model):
     edited = models.BooleanField(default=False)
     edited_at = models.DateTimeField(null=True, blank=True)
     edited_by = models.ForeignKey(User, null=True, blank=True, related_name="edited_messages", on_delete=models.SET_NULL)
+    read = models.BooleanField(default=False)  # Field to track if a message has been read
     parent_message = models.ForeignKey(
         'self',
         null=True,
@@ -17,8 +18,12 @@ class Message(models.Model):
         on_delete=models.CASCADE
     )
 
+    # Assign the custom manager
+    objects = models.Manager()  # Default manager
+    unread_messages = UnreadMessagesManager()  # Custom manager
+
     def __str__(self):
-        return f"Message from {self.sender} to {self.receiver}: {self.content[:30]}"
+        return f"Message from {self.sender} to {self.receiver} - {self.content[:20]}"
 
     @property
     def is_reply(self):
@@ -47,3 +52,8 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user}"
+
+class UnreadMessagesManager(models.Manager):
+    def get_unread_messages(self, user):
+        # Filter unread messages for the specific user and optimize the query
+        return self.filter(receiver=user, read=False).only('id', 'sender', 'content', 'timestamp')

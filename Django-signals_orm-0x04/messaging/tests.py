@@ -31,3 +31,20 @@ class MessageEditSignalTest(TestCase):
         # Check if a notification is created
         notification = Notification.objects.filter(user=self.receiver, message=message)
         self.assertTrue(notification.exists())
+
+class ThreadedConversationTest(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(username='user1', password='password')
+        self.user2 = User.objects.create_user(username='user2', password='password')
+        self.message = Message.objects.create(sender=self.user1, receiver=self.user2, content='Hello')
+        self.reply = Message.objects.create(sender=self.user2, receiver=self.user1, content='Hi!', parent_message=self.message)
+
+    def test_threaded_message(self):
+        self.assertEqual(self.message.replies.count(), 1)
+        self.assertEqual(self.message.replies.first(), self.reply)
+
+    def test_recursive_replies(self):
+        second_reply = Message.objects.create(sender=self.user1, receiver=self.user2, content='How are you?', parent_message=self.reply)
+        all_replies = self.message.get_all_replies()
+        self.assertIn(self.reply, all_replies)
+        self.assertIn(second_reply, all_replies)

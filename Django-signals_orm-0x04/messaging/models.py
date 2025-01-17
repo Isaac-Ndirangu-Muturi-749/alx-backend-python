@@ -9,9 +9,27 @@ class Message(models.Model):
     edited = models.BooleanField(default=False)
     edited_at = models.DateTimeField(null=True, blank=True)
     edited_by = models.ForeignKey(User, null=True, blank=True, related_name="edited_messages", on_delete=models.SET_NULL)
+    parent_message = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        related_name='replies',
+        on_delete=models.CASCADE
+    )
 
     def __str__(self):
-        return f"Message from {self.sender} to {self.receiver}"
+        return f"Message from {self.sender} to {self.receiver}: {self.content[:30]}"
+
+    @property
+    def is_reply(self):
+        return self.parent_message is not None
+
+    def get_all_replies(self):
+        replies = self.replies.all()
+        all_replies = list(replies)
+        for reply in replies:
+            all_replies.extend(reply.get_all_replies())
+        return all_replies
 
 class MessageHistory(models.Model):
     message = models.ForeignKey(Message, related_name="history", on_delete=models.CASCADE)
